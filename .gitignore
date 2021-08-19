@@ -1,0 +1,5 @@
+*.sysop
+__pycache__
+nohup.out
+*.pt
+.vscode/

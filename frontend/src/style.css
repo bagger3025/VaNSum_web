@@ -1,0 +1,150 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap");
+
+body {
+    font-family: "Noto Sans KR", sans-serif;
+}
+
+.sidenav {
+    height: 100%; 
+    width: 160px; 
+    position: fixed; 
+    z-index: 1; 
+    top: 0; 
+    left: 0;
+    background-color: black; 
+    overflow-x: hidden; 
+    padding-top: 20px;
+}
+
+.sidenav a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+}
+
+.white
+{
+    color:white
+}
+
+.main {
+    min-height: calc(100vh - 200px); /*footer 바닥에 붙이는 용*/
+    margin-left: 160px; 
+    padding: 0px 30px;
+}
+
+.refresh
+{
+    right: 90%;
+    top: 10%;
+}
+
+.float
+{
+    float: left;
+}
+
+.left-box{
+    float : left;
+    width : 42%;
+    margin-right: 100px;
+    margin-top: 0px;
+}
+.right-box {
+    float : right;
+    width:42%;
+    margin-right: 100px;
+    margin-top: 0px;
+}
+
+header {
+    padding: 20px 0px 20px 30px;
+    margin: 0 -30px 30px -30px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+input{
+    margin: 10px;
+    margin-left: 0;
+    padding: 0.375rem 1rem;
+}
+
+footer{
+    height: 150px;
+    width: calc(100vmax - 160px);
+    background-color: rgb(224, 224, 224);
+    padding: 30px;
+    padding-top: 20px;
+    margin-top: 50px;
+    margin-left: 160px;
+
+    color: rgb(139, 139, 139);
+
+}
+footer div{
+    display: inline;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+    margin: 20px 10px 0px 0px;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}
+@media screen and (max-width: 768px) {
+    .sidenav {display: none;}
+    .main, footer{margin-left: 0;}
+    footer{width: 100%;}
+}
+
+.sumArea{
+    border: solid black;
+    text-align:left;
+    background-color: white;
+}
+
+.inline-div{
+    display : inline-block;
+}
+
+.input-div{
+    vertical-align : "middle";
+}
+
+.asd{
+    text-align : "middle"
+}
+
+html {
+    min-height : 100%;
+    margin : 0;
+    background : white;
+}
+
+body {
+    margin : 0;
+    min-height : 100%;
+}
+
+
+
+.footer{
+    left : 0;
+    bottom : 0;
+    width : 100%;
+    padding : 15px 0;
+    text-align : center;
+    color:white;
+}
+
+.wrapper{
+    display: flex; 
+    min-height: 100vh; 
+    flex-direction: column;
+}

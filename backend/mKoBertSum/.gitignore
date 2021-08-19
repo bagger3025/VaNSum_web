@@ -1,0 +1,6 @@
+.vscode/
+__pycache__
+tutorials/.ipynb_checkpoints/
+temp/
+DACON+AIHUB.jsonl
+!temp/src/*
