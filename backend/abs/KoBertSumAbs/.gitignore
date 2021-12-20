@@ -1,0 +1,8 @@
+.vscode/
+__pycache__
+tutorials/.ipynb_checkpoints/
+# temp/
+*.out
+*.pt
+*.log
+*.ubuntu

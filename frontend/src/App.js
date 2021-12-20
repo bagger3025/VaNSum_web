@@ -3,10 +3,15 @@ import TextField from './components/TextField'
 import ModelTextField from './components/ModelTextField'
 import InputField from './components/InputField'
 import GoldSummaryField from './components/GoldSummaryField'
+import AbsInputField from './components/AbsInputField'
+import TitleInputField from './components/TitleInputField'
+import PegasusField from './components/PegasusField';
 import Logo_SKKU_32 from './Logo_SKKU_32.ico'
+import SummaInputField from './components/SummaInputField';
 import './style.css'
-import {BrowserRouter as Router, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
 import HighlightRadioButton from './components/HighlightRadioButton';
+
 // import SignPage from './pages/SignPage ';
 
 
@@ -192,7 +197,7 @@ class App extends Component {
 		const regex = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 		if (aiHub === true) {
 			const b = Math.floor(Math.random() * 3000);
-			const requestOpt = this.getRequest({random: b});
+			const requestOpt = this.getRequest({random: b, "type":"ext"});
 			fetch(URL_TO_API + "/api/aiHub", requestOpt).then(response => response.json()).then(jsons => {
 				let list = [];
 				jsons['extractive'].forEach(item => {
@@ -216,7 +221,8 @@ class App extends Component {
 			}
 			const requestOpt = this.getRequest({url: keyword,});
 			fetch(URL_TO_API + "/api/original_text", requestOpt).then(response => response.json()).then(jsons => {
-				console.log("navernews original article: ", jsons["text"]);
+				console.log("navernews original article: ");
+				console.log(jsons["text"]);
 				this.getTextSummary(jsons["text"], cur_id, number);
 			});
 			fetch(URL_TO_API + "/api/naver_summary", requestOpt).then(response => response.json()).then(jsons => {
@@ -263,8 +269,9 @@ class App extends Component {
 		let _main, _footer;
 		if (this.state.mode === 'input') {
 			_footer = <footer className="footer">
-				<img src={Logo_SKKU_32} alt="logo" className="logo" />
-				<div>2021 성균관대학교 산학협력프로젝트 테스트사이트</div>
+				{/* <img src={Logo_SKKU_32} alt="logo" className="logo" /> */}
+				<img src className="skkuimg" alt = "skkulogo" src = "img/skku_logo.png"/>
+				{/* <div>2021 성균관대학교 산학협력프로젝트 테스트사이트</div> */}
 				<br></br>
 				{/* <div><img src="https://storage.googleapis.com/chrome-gcs-uploader.appspot.com/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/UV4C4ybeBTsZt43U4xis.png" alt="Available in the Chrom Web Store"></img></div> */}
 			</footer>
@@ -333,19 +340,33 @@ class App extends Component {
 
 		return (
 			<div className="">
-				<section className="sidenav">
-						<a href="/home" ><span>Home</span></a>
-						<a href="/contact"><span>Contact</span></a>
-				</section>
 				<Router>
+					<Route exact path = "/">
+						<Redirect to ="/home" />
+					</Route>
 					<Route path = "/contact" >
 						<section className="sidenav">
-							<a href="/home" ><span>Home</span></a>
-							<a href="/contact"><span className = "white">Contact</span></a>
+						<div style ={{paddingTop:'70px'}}>
+							<a href="/home" ><span style = {{color:'black', fontSize:'20px'}} >추출식(kor)</span></a>
+							<hr/>
+							<a href="/abstractive"><span style = {{color:"black", fontSize:'20px'}}>생성식(kor)</span></a>
+							<hr/>
+							<a href="/pegasus" ><span style = {{ color:"black", fontSize:'20px'}}>생성식(eng)</span></a>
+							<hr/>
+							<a href="/contact" ><span style = {{color:"white", fontSize:'20px'}}>Contact</span></a>
+							</div>
+							<hr/>
+							<a href = "/KobertSum"><span style = {{color:"black", fontSize:'20px'}}>BertSumExt<br/>(제목)</span></a>
+							<hr/>
+							<a href = "/SummaRuNNer"><span style = {{color:"black", fontSize:'20px'}}>Summa<br/>RuNNer<br/>(제목)</span></a>
 						</section>
+						<section className="main">
+							<header>
+								<a href="/home"><img src className="skkuimg" alt = "vaivlogo" src = "img/vaiv_news.png"/></a>
+								<h2 style = {{textAlign:"center"}}>성균관대학교 & 바이브 컴퍼니</h2>
+							</header>
+
 						<div style ={{fontSize : '3rem', textAlign:'center', fontFamily:'Arial'}}>
-							성균관대학교 & 바이브 컴퍼니 
-							<hr></hr>
 							<div style = {{fontSize : '1.5rem', marginLeft: '20px'}}>
 								<p style = {{padding : '1px'}}>가수연(팀장) - email : bagger3025@g.skku.edu</p>
 								<br></br>
@@ -358,17 +379,31 @@ class App extends Component {
 								<p style ={{padding : '1px'}}>차현묵 - email : mook0227@g.skku.edu</p> 
 							</div>
 						</div>
+						</section>
+						
 						{_footer}
 					</Route>
 					<Route path = "/home">
-						<section className="sidenav">
-							<a href="/home" ><span className="white" >Home</span></a>
-							<a href="/contact" >Contact</a>
+					<section className="sidenav">
+						<div style ={{paddingTop:'70px'}}>
+							<a href="/home" ><span style = {{color:'white', fontSize:'20px'}} >추출식(kor)</span></a>
+							<hr/>
+							<a href="/abstractive"><span style = {{color:"black", fontSize:'20px'}}>생성식(kor)</span></a>
+							<hr/>
+							<a href="/pegasus" ><span style = {{ color:"black", fontSize:'20px'}}>생성식(eng)</span></a>
+							<hr/>
+							<a href="/contact" ><span style = {{color:"black", fontSize:'20px'}}>Contact</span></a>
+							</div>
+							<hr/>
+							<a href = "/KobertSum"><span style = {{color:"black", fontSize:'20px'}}>BertSumExt<br/>(제목)</span></a>
+							<hr/>
+							<a href = "/SummaRuNNer"><span style = {{color:"black", fontSize:'20px'}}>Summa<br/>RuNNer<br/>(제목)</span></a>
 						</section>
 						<section className="main">
 							<header>
-								<h2>VaNSum</h2>
-								<h6>Vaiv News Summary</h6>
+								{/* <h2>VaNSum</h2>
+								<h6>Vaiv News Summary</h6> */}
+								<a href="/home"><img src className="skkuimg" alt = "vaivlogo" src = "img/vaiv_news.png"/></a>
 							</header>
 							<InputField onSubmit={function (models, keyword, number, aiHub) {
 								this.resetFields();
@@ -377,6 +412,104 @@ class App extends Component {
 							{_main}
 						</section>
 						{_footer}
+					</Route>
+					<Route path = "/abstractive">
+					<section className="sidenav">
+						<div style ={{paddingTop:'70px'}}>
+							<a href="/home" ><span style = {{color:'black', fontSize:'20px'}} >추출식(kor)</span></a>
+							<hr/>
+							<a href="/abstractive"><span style = {{color:"white", fontSize:'20px'}}>생성식(kor)</span></a>
+							<hr/>
+							<a href="/pegasus" ><span style = {{ color:"black", fontSize:'20px'}}>생성식(eng)</span></a>
+							<hr/>
+							<a href="/contact" ><span style = {{color:"black", fontSize:'20px'}}>Contact</span></a>
+							</div>
+							
+							<hr/>
+							<a href = "/KobertSum"><span style = {{color:"black", fontSize:'20px'}}>BertSumExt<br/>(제목)</span></a>
+							<hr/>
+							<a href = "/SummaRuNNer"><span style = {{color:"black", fontSize:'20px'}}>Summa<br/>RuNNer<br/>(제목)</span></a>
+						</section>
+						<section className="main">
+							<header>
+								<a href="/home/"><img src className="skkuimg" alt = "vaivlogo" src = "img/vaiv_news.png"/></a>
+							</header>
+							<AbsInputField/>
+							
+						</section>
+					</Route>
+					<Route path = "/KobertSum">
+					<section className="sidenav">
+						<div style ={{paddingTop:'70px'}}>
+							<a href="/home" ><span style = {{color:'black', fontSize:'20px'}} >추출식(kor)</span></a>
+							<hr/>
+							<a href="/abstractive"><span style = {{color:"black", fontSize:'20px'}}>생성식(kor)</span></a>
+							<hr/>
+							<a href="/pegasus" ><span style = {{ color:"black", fontSize:'20px'}}>생성식(eng)</span></a>
+							<hr/>
+							<a href="/contact" ><span style = {{color:"black", fontSize:'20px'}}>Contact</span></a>
+							</div>
+							<hr/>
+							<a href = "/KobertSum"><span style = {{color:"white", fontSize:'20px'}}>BertSumExt<br/>(제목)</span></a>
+							<hr/>
+							<a href = "/SummaRuNNer"><span style = {{color:"black", fontSize:'20px'}}>Summa<br/>RuNNer<br/>(제목)</span></a>
+						</section>
+						<section className="main">
+							<header>
+								<a href="/home"><img src className="skkuimg" alt = "vaivlogo" src = "img/vaiv_news.png"/></a>
+							</header>
+							<TitleInputField/>
+							
+						</section>
+					</Route>
+					<Route path = "/SummaRuNNer">
+					<section className="sidenav">
+						<div style ={{paddingTop:'70px'}}>
+							<a href="/home" ><span style = {{color:'black', fontSize:'20px'}} >추출식(kor)</span></a>
+							<hr/>
+							<a href="/abstractive"><span style = {{color:"black", fontSize:'20px'}}>생성식(kor)</span></a>
+							<hr/>
+							<a href="/pegasus" ><span style = {{ color:"black", fontSize:'20px'}}>생성식(eng)</span></a>
+							<hr/>
+							<a href="/contact" ><span style = {{color:"black", fontSize:'20px'}}>Contact</span></a>
+							</div>
+							
+							<hr/>
+							<a href = "/KobertSum"><span style = {{color:"black", fontSize:'20px'}}>BertSumExt<br/>(제목)</span></a>
+							<hr/>
+							<a href = "/SummaRuNNer"><span style = {{color:"white", fontSize:'20px'}}>Summa<br/>RuNNer<br/>(제목)</span></a>
+						</section>
+						<section className="main">
+							<header>
+							<a href="/home"><img src className="skkuimg" alt = "vaivlogo" src = "img/vaiv_news.png"/></a>
+							</header>
+							<SummaInputField/>
+							
+						</section>
+					</Route>
+					<Route path = "/pegasus">
+					<section className="sidenav">
+						<div style ={{paddingTop:'70px'}}>
+							<a href="/home" ><span style = {{color:'black', fontSize:'20px'}} >추출식(kor)</span></a>
+							<hr/>
+							<a href="/abstractive"><span style = {{color:"black", fontSize:'20px'}}>생성식(kor)</span></a>
+							<hr/>
+							<a href="/pegasus" ><span style = {{ color:"white", fontSize:'20px'}}>생성식(eng)</span></a>
+							<hr/>
+							<a href="/contact" ><span style = {{color:"black", fontSize:'20px'}}>Contact</span></a>
+							</div>
+							<hr/>
+							<a href = "/KobertSum"><span style = {{color:"black", fontSize:'20px'}}>BertSumExt<br/>(제목)</span></a>
+							<hr/>
+							<a href = "/SummaRuNNer"><span style = {{color:"black", fontSize:'20px'}}>Summa<br/>RuNNer<br/>(제목)</span></a>
+						</section>
+						<section className="main">
+							<header>
+							<a href="/home"><img src className="skkuimg" alt = "vaivlogo" src = "img/vaiv_news.png"/></a>
+							</header>
+							<PegasusField/>
+							
+						</section>
 					</Route>
 				</Router>
 				

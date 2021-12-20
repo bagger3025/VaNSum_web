@@ -1,0 +1,5 @@
+@font-face {
+    font-family: "NanumPen";
+    src: local("NanumPen"), url("./fonts/NanumPen.ttf") format("truetype");
+    font-weight: normal;
+}

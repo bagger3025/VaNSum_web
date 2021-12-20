@@ -58,5 +58,5 @@ def load_summary_from_url(url):
 
     return body
 
-a = load_summary_from_url("https://news.naver.com/main/read.naver?mode=LSD&mid=shm&sid1=103&oid=422&aid=0000497494")
-print(a)
+# a = load_summary_from_url("https://news.naver.com/main/read.naver?mode=LSD&mid=shm&sid1=102&oid=032&aid=0003105654")
+# print(a)

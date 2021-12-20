@@ -1,0 +1,35 @@
+@font-face {
+    font-family: "BlackhanSans";
+    font-weight: 50;
+    src: url("./fonts/BlackHanSans-Regular.ttf") format("truetype");
+  }
+  
+  @font-face {
+    font-family: "Yfont";
+    src: url("./fonts/Y\ 너만을\ 비춤체.ttf");
+  }
+  
+  @font-face {
+    font-family: "BMDOHYEON";
+    src: url("./fonts/BMDOHYEON_ttf.ttf");
+  }
+  
+  @font-face {
+    font-family: "tway_sky";
+    src: url("./fonts/tway_sky.ttf");
+  }
+  
+  @font-face {
+    font-family: "SpoqaHanSansNeo";
+    src: url("./fonts/SpoqaHanSansNeo-Light.ttf");
+  }
+  
+  @font-face {
+    font-family: "SEBANG";
+    src: url("./fonts/SEBANG\ Gothic.ttf");
+  }
+  
+  @font-face {
+    font-family: "Gmarket";
+    src: url("./fonts/GmarketSansTTFMedium.ttf");
+  }

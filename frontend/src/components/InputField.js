@@ -71,7 +71,7 @@ class InputField extends Component {
                     const boolValue = e.target.ai.checked;
                     this.props.onSubmit(_selected_list, _keyword, _numberOfSummary, boolValue);
                 }.bind(this)}>
-                    <label>Model</label>
+                    <label>Language Model</label>
                     <h3>Select Model</h3>
                     <label> | <input type="checkbox" name="model" value="KoBertSum" checked={this.state.checked} onChange={this.handleChange} />KoBertSum | </label>
                     &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;
@@ -107,7 +107,7 @@ class InputField extends Component {
 
                     <button type="submit" className="btn btn-primary" onClick = {this.checkTxtarea} >Summarize</button>
                     <br /><br />
-                    <h5><input type="checkbox" name="ai" checked={this.state.aiHub} onChange={this.handleAi}></input>AIHUB 뉴스 기사 입력(랜덤)</h5>
+                    <label><h5><input type="checkbox" name="ai" checked={this.state.aiHub} onChange={this.handleAi}></input>AIHUB 뉴스 기사 입력(랜덤)</h5></label>
                     <br /><br />
                 </form>
                 <br />

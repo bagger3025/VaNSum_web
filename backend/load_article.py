@@ -15,6 +15,7 @@ def load_article_from_url(url):
 
     bodyBracketReplaced = re1.sub(r'\([^)]*\)', '', body)
     splitted = bodyBracketReplaced.split("<br/>")
+    
     return splitted
 
 def clean_body(body, news):
@@ -103,4 +104,3 @@ def clean_summary(text):
     result = text.replace("\n\n", " ")
 
     return result
-

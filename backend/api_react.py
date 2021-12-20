@@ -6,15 +6,21 @@ from konlpy.tag import Kkma
 from kss import split_sentences
 from load_article import load_article_from_url
 from naversum import make_gsum
+from naversum_title import make_gsum_title
 import jsonlines
 from werkzeug.utils import secure_filename
 from random import *
+import requests
+from mkreport import load_article_from_url_mk
 
 import textrank
 import lexrank
 from SummaRuNNer.str_to_summarize import SummaRuNNer_Summarizer
+from SummaRuNNer_title.main import summary_with_title, pre_compare_title
 from mKoBertSum import kobertsum_summarizer, make_jsonlf
+# from KoBertSumAbs import ExtAbs_Summarizer
 from MatchSum.matchsum_summarizer import MatchSum_Summarizer
+import re
 
 
 app = Flask(__name__)
@@ -182,8 +188,76 @@ def kobertsum_summarize():
             start = time.time()
             make_jsonlf.mk_jsonl(text)
             _, li, probs = kobertsum_summarizer.bertSum(kobertsum_summarizer_model, n_sents=topk, sort_by_pred=True)
+            # _, li, probs = kobertsum_summarizer.bertSum_with_title(kobertsum_summarizer_model_with_title, n_sents=topk, sort_by_pred=True)
             if sort == 'sent':
                 li, probs = probs_to_sents(li, probs, topk)
+            li = to_original_indices(li, index_lists)
+            end = time.time()
+
+            result = {
+                "summary": li,
+                "prob": probs,
+                "time": end - start
+            }
+        response.set_data(json.dumps(result, ensure_ascii=False))
+    return response
+
+@app.route('/api/KoBertSum_with_title', methods=['POST', 'OPTIONS'])
+def kobertsum_summarize_with_title():
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        text, topk, sort = get_data(data)
+        text, index_lists = preprocess_text(text)
+        ok, result = validate_data(text, topk, sort)
+        if ok:
+            start = time.time()
+            make_jsonlf.mk_jsonl_with_title(text)
+            _, li, probs = kobertsum_summarizer.bertSum_with_title(kobertsum_summarizer_model_with_title, n_sents=topk, sort_by_pred=True)
+            if sort == 'sent':
+                li, probs = probs_to_sents(li, probs, topk)
+            #for with title
+            for i in range(len(li)):
+                li[i] = li[i] + 1
+            li = to_original_indices(li, index_lists)
+            end = time.time()
+
+            result = {
+                "summary": li,
+                "prob": probs,
+                "time": end - start
+            }
+        response.set_data(json.dumps(result, ensure_ascii=False))
+    return response
+
+@app.route('/api/SummaRuNNer_with_title', methods=['POST', 'OPTIONS'])
+def summarunner_summarize_with_title():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        text, topk, sort = get_data(data)
+        text, index_lists = preprocess_text(text)
+        ok, result = validate_data(text, topk, sort)
+        if ok:
+            start = time.time()
+            li, probs = summary_with_title(["\n".join(text)], summarunner_with_title_preloaded);
+            if sort == 'sent':
+                li, probs = probs_to_sents(li, probs, topk)
+            for i in range(len(li)):
+                li[i] = li[i] + 1
             li = to_original_indices(li, index_lists)
             end = time.time()
 
@@ -376,11 +450,126 @@ def aiHub():
                     j=reader.read()
                     break
                 i+=1
-        result={
+        if(data["type"]=="ext"):
+            result={
             "article_original" : j["article_original"],
             "extractive" : j["extractive"]
         }
+        else:
+            result={
+                "article_original":j["article_original"],
+                "abstractive" : j["abstractive"]
+            }
+
+
         response.set_data(json.dumps(result, ensure_ascii=False))
+    return response
+
+@app.route('/api/kobart', methods=['GET', 'POST', 'OPTIONS'])
+def kobart_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        # print(data)
+        data = requests.post("http://112.175.32.78:9500/api/kobart", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+    
+@app.route('/api/KobertSumExtAbs', methods=['POST', 'OPTIONS'])
+def kobertsumextabs_summarize():
+    response=Response()
+    
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data= request.get_json()
+        data = requests.post("http://112.175.32.78:9550/api/extabs", json=data)
+        data = data.json()
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+        # text=data['text']
+
+        # if type(text) != list:
+        #     return json.dumps({"summary": "ERROR! Text is not list"}, ensure_ascii=False)
+        # start = time.time()
+        
+        # text = " ".join(text)
+        # text = text.replace("\n", " ")
+        # text = re.sub(r" +", " ", text)
+        # text = text.strip()
+        # if len(text) == 0:
+        #     return json.dumps({"summary": "ERROR! Text is empty"}, ensure_ascii=False)
+
+        # ExtAbs_Summarizer.pre_train_data(text)
+        # ExtAbs_Summarizer.bertSum(kobertsumextabs_summarizer_model, True)
+
+
+@app.route('/api/kobart_rdrop', methods=['GET', 'POST', 'OPTIONS'])
+def kobart_rdrop_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:9500/api/kobart_rdrop", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+@app.route('/api/kobart_rdrop_magazine', methods=['GET', 'POST', 'OPTIONS'])
+def kobart_rdrop_magazine_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:9500/api/kobart_rdrop_magazine", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+@app.route('/api/kobart_rdrop_book', methods=['GET', 'POST', 'OPTIONS'])
+def kobart_rdrop_book_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:9500/api/kobart_rdrop_book", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
 @app.route('/api/test', methods=['GET', 'POST', 'OPTIONS'])
@@ -392,10 +581,202 @@ def test_api():
 
     return result
 
+@app.route('/api/original_text_with_title', methods=['POST', 'OPTIONS'])
+def get_originaltext_with_title():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        article = load_article_from_url(data['url'])
+        title = make_gsum_title(data['url'])
+        
+        sentences = []
+        sentences.append(title)
+        for a in article:
+            s = split_sentences(a, safe=True)
+            sentences.extend(s)
+
+        result = {
+            "text": sentences,
+        }
+        response.set_data(json.dumps(result, ensure_ascii=False))
+
+    return response
+
+@app.route('/api/aiHub_title', methods = ['POST', 'OPTIONS'])
+def aiHub_title():
+    response= Response()
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        idx = data["random"]
+        i=0
+        j={}
+        with jsonlines.open('AIHUB_valid_with_title.jsonl') as reader:
+            for obj in reader:
+                if(i==idx):
+                    j=reader.read()
+                    break
+                i+=1
+        if(data["type"]=="ext"):
+            result={
+            "article_original" : j["article_original"],
+            "extractive" : j["extractive"]
+        }
+        else:
+            result={
+                "article_original":j["article_original"],
+                "abstractive" : j["abstractive"]
+            }
+        
+        response.set_data(json.dumps(result, ensure_ascii=False))
+    return response
+
+@app.route('/api/mkreport', methods = ['POST', 'OPTIONS'])
+def mkreport():
+    response= Response()
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        url = data["url"]
+        text = load_article_from_url_mk(url)
+        result={
+                "text": text
+            }
+
+        response.set_data(json.dumps(result, ensure_ascii=False))
+    return response
+
+@app.route('/api/pegasus_large', methods=['GET', 'POST', 'OPTIONS'])
+def pegasus_large_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:8800/api/pegasus_large", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+@app.route('/api/pegasus_large_skku', methods=['GET', 'POST', 'OPTIONS'])
+def pegasus_large_skku_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:8800/api/pegasus_large_skku", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+@app.route('/api/pegasus_base_skku', methods=['GET', 'POST', 'OPTIONS'])
+def pegasus_base_skku_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:8800/api/pegasus_base_skku", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+@app.route('/api/cnnTest', methods = ['POST', 'OPTIONS'])
+def cnnTest():
+    response= Response()
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        num = data["random"]
+
+        ind = "-----:" + str(num) + "\n"
+        next = "-----:" + str(num+1) + "\n"
+        input=""
+        answer=""
+        f1 = "cnn_dailymail_test/inputs-210000-.dev.txt"
+        f2 = "cnn_dailymail_test/targets-210000-.dev.txt"
+        
+        tmp=0
+        f = open(f1, 'r')
+        lines = f.readlines()
+        for line in lines:
+            if(line==next):
+                tmp=0
+                break;
+            if tmp==1:
+                input+=line
+            if(line==ind):
+                tmp=1
+        
+        tmp=0
+        f = open(f2, 'r')
+        lines = f.readlines()
+        for line in lines:
+            if(line==next):
+                tmp=0
+                break;
+            if tmp==1:
+                answer+=line
+            if(line==ind):
+                tmp=1
+            
+        input = input.replace("[0]:\n", "")
+
+        result={
+                "article_original":input,
+                "answer": answer,
+                "index": num,
+            }
+
+        response.set_data(json.dumps(result, ensure_ascii=False))
+    return response
+
+
 if __name__ == '__main__':
     kkma = Kkma()
     summaraunner_summarizer_model = SummaRuNNer_Summarizer()
     matchsum_summarizer_model = MatchSum_Summarizer()
     kobertsum_summarizer_model = kobertsum_summarizer.preload()
-    # app.run(debug=True, port=9886)
+    kobertsum_summarizer_model_with_title = kobertsum_summarizer.preload_with_title()
+    summarunner_with_title_preloaded = pre_compare_title()
+    # kobertsumextabs_summarizer_model = ExtAbs_Summarizer.preload()
+    #app.run(debug=True, port=9886)
     app.run(host="112.175.32.78", port=8443)
