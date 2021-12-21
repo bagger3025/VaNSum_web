@@ -17,7 +17,9 @@ python api_react.py
 |SummaRuNNer/Mecab/embedding_mecab_ko.npz   SummaRuNNer/Mecab/word2id_mecab_ko.json|SummaRuNNer/data/|
 |SummaRuNNer/model/RNN_RNN_seed_1_mecababs.pt|SummaRuNNer/checkpoints/|
 
-# SummaRuNNer
+# Extractive
+
+## SummaRuNNer
 
 [hpzhao/SummaRuNNer](https://github.com/hpzhao/SummaRuNNer)을 바탕으로 수정하였습니다.
 
@@ -39,7 +41,7 @@ python api_react.py
 
     - 데이터
 
-        [AIHUB 데이터](https://aihub.or.kr/aidata/8054)를 사용합니다. 전처리하는 명령어는 다음과 같습니다.
+        [AIHub 데이터](https://aihub.or.kr/aidata/8054)를 사용합니다. 전처리하는 명령어는 다음과 같습니다.
         ```bash
         python preprocess.py -worker_num 10 -source_dir {AIHUB 데이터 경로} -target_dir {처리된 데이터 저장 경로}
         ```
@@ -72,7 +74,7 @@ python api_react.py
     `-topk`옵션을 통해 상위 몇 개의 문장을 저장할 것인지를 지정할 수 있습니다.
 
 
-# KoBertSum
+## KoBertSum
 
 [uoneway/KoBertSum](https://github.com/uoneway/KoBertSum)을 바탕으로 수정하였습니다.
 
@@ -119,7 +121,7 @@ python api_react.py
     요약문, 요약문에 해당하는 인덱스, 요약 모델 내에서의 점수를 차례대로 출력합니다. 
 
 
-# MatchSum
+## MatchSum
 
 [maszhongming/MatchSum](https://github.com/maszhongming/MatchSum)을 바탕으로 수정하였습니다.
 
@@ -160,6 +162,36 @@ python api_react.py
     - 정답이 없는 test셋의 경우: ROUGE 점수를 계산할 수 없고, `csv_path` 인자를 받아 csv파일로 출력합니다. `MatchExportMetric`를 사용합니다. `csv_path`를 인자로 넘겨줘야 합니다.
 
     - 하나씩 요청받아 처리하는 경우: 각각의 경우에 대해 확률과 인덱스를 반환합니다. `MatchResultMetric`를 사용합니다.
+
+# Abstractive
+
+모델이 다양해지고 요구되는 환경이 달라져서 conda 가상환경을 새롭게 만들어 각각 flask를 킨 후 `api_react.py`에서 알맞은 곳으로 요청하는 방식을 활용하였습니다.
+
+## KoBART
+
+[seujung/KoBART-summarization](https://github.com/seujung/KoBART-summarization)을 바탕으로 수정하였습니다.
+
+실행 방법 등의 내용은 원래 github의 내용과 동일하므로 참고하시기 바랍니다.
+
+KoBART R-Drop을 구현하면서 달라진 내용은 `abs/KoBART-summarization` 안의 `README.md`를 참고하시기 바랍니다.
+
+## KoBERTSumExtAbs
+
+[uoneway/KoBertSum](https://github.com/uoneway/KoBertSum)과 [nlpyang/PreSumm](https://github.com/nlpyang/PreSumm)을 바탕으로 수정하였습니다.
+
+실행 방법은 [nlpyang/PreSumm](https://github.com/nlpyang/PreSumm)을 참고하시기 바랍니다.
+
+## KoGPT2
+
+[seujung/KoGPT2-summarization](https://github.com/seujung/KoGPT2-summarization)을 바탕으로 수정하였습니다.
+
+실행 방법 등의 내용은 원래 github README.md의 내용과 동일합니다.
+
+## Pegasus
+
+[google-research/pegasus](https://github.com/google-research/pegasus)를 바탕으로 수정하였습니다.
+
+실행 방법 등의 내용은 원래 github README.md의 내용과 동일합니다.
 
 # API
 

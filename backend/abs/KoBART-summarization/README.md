@@ -32,40 +32,31 @@ streamlit==0.72.0
   
 | news  | summary |
 |-------|--------:|
-| 뉴스원문| 요약문 |  
+| 뉴스원문| 요약문 |
+
+### 다른 데이터를 tsv 형태로 데이터를 변환할 때의 주의사항
+  - tsv 파일을 저장하는 데에는 pandas 라이브러리 사용
+  - 데이터에 빈 문자열이 있는 경우 NaN 값이 입력되어 오류를 발생함. 이 때에는 `df.isna().sum()`과 같은 명령어로 NaN 값이 있는지를 확인해야 함
+  - 만약 NaN 값이 있다면 `df = df.loc[df.loc[:,"summary"].isna()==False]`와 같은 식으로 NaN 값을 없앤 후 다시 저장해야 함
+
 
 
 ## How to Train
 - KoBART summarization fine-tuning
+- default_root_dir이 모델이 저장되는 폴더명
 ```
 bash install_kobart.sh
 pip install -r requirements.txt
 
 [use gpu]
-python train.py  --gradient_clip_val 1.0 --max_epochs 50 --default_root_dir logs  --gpus 1 --batch_size 4 --num_workers 4
+python train.py  --gradient_clip_val 1.0 --max_epochs 50 --default_root_dir logs  --gpus 1 --batch_size 4 --num_workers 4 --dropout 0.2 --kl_alpha 0.1 --train_file data/train.tsv --test_file data/test.tsv
 
 [use cpu]
 python train.py  --gradient_clip_val 1.0 --max_epochs 50 --default_root_dir logs  --batch_size 4 --num_workers 4
 ```
-## Generation Sample
-| ||Text|
-|-------|:--------|:--------|
-|1|Label|태왕의 '성당 태왕아너스 메트로'모델하우스는 초역세권 입지와 변화하는 라이프스타일에 맞춘 혁신평면으로 오픈 당일부터 관람객의 줄이 이어지면서 관람객의 호평을 받았다.|
-|1|koBART|아파트 분양시장이 실수요자 중심으로 바뀌면서 초역세권 입지와 변화하는 라이프스타일에 맞춘 혁신평면이 아파트 선택에 미치는 영향력이 커지고 있는 가운데, 태왕이 지난 22일 공개한 ‘성당 태왕아너스 메트로’ 모델하우스를 찾은 방문객들은 합리적인 분양가와 중도금무이자 등의 분양조건도 실수요자에게 유리해 높은 청약경쟁률을 기대했다.|
-
-| ||Text|
-|-------|:--------|:--------|
-|2|Label|광주지방국세청은 '상생하고 포용하는 세정구현을 위한' 혁신성장 기업 세정지원 설명회를 열어 여러 세정지원 제도를 안내하고 기업 현장의 애로, 건의사항을 경청하며 기업 맞춤형 세정서비스를 제공할 것을 약속했다.|
-|2|koBART|17일 광주지방국세청은 정부광주지방합동청사 3층 세미나실에서 혁신성장 경제정책을 세정차원에서 뒷받침하기 위해 다양한 세정지원 제도를 안내하는 동시에 기업 현장의 애로·건의사항을 경청하기 위해 ‘상생하고 포용하는 세정구현을 위한’ 혁신성장 기업 세정지원 설명회를 열어 주목을 끌었다.'|
-
-| ||Text|
-|-------|:--------|:--------|
-|3|Label|신용보증기금 등 3개 기관은 31일 서울 중구 기업은행 본점에서 최근 경영에 어려움을 겪는 소상공인 등의 금융비용 부담을 줄이고 서민경제에 활력을 주기 위해 '소상공인. 자영업자 특별 금융지원 업무협약'을 체결했다고 전했으며 지원대상은 필요한 조건을 갖춘 수출중소기업, 유망창업기업 등이다.|
-|3|koBART|최근 경영애로를 겪고 있는 소상공인과 자영업자의 금융비용 부담을 완화하고 서민경제의 활력을 제고하기 위해 신용보증기금·기술보증기금·신용보증재단 중앙회·기업은행은 31일 서울 중구 기업은행 본점에서 ‘소상공인·자영업자 특별 금융지원 업무협약’을 체결했다.|
 
 
-
-## Model Performance
+## Model Performance (original github)
 - Test Data 기준으로 rouge score를 산출함
 - Score 산출 방법은 Dacon 한국어 문서 생성요약 AI 경진대회 metric을 활용함
   
@@ -74,6 +65,39 @@ python train.py  --gradient_clip_val 1.0 --max_epochs 50 --default_root_dir logs
 | Precision| 0.515 | 0.351|0.415|
 | Recall| 0.538| 0.359|0.440|
 | F1| 0.505| 0.340|0.415|
+
+## Model Performance (SKKU)
+- Test set은 AIHub 뉴스데이터의 1.1버전 validation set을 사용
+  - 10000개의 데이터셋으로 되어 있음
+- Score 산출은 DACON 한국어 문서 생성요약 AI 경진대회의 코드를 활용
+
+1. `KoBARTConditionalGeneration`을 활용하여 KoBART를 사용했을 때
+  
+  ||f1 score|
+  |---|---|
+  |rouge-1|0.513|
+  |rouge-2|0.344|
+  |rouge-l|0.420|
+
+2. `KoBARTRDropGeneration`을 활용하여 KoBART R-Drop을 사용했을 때, `--dropout 0.1 --kl_alpha 0.1`을 활용하여 훈련했을 때
+
+  ||f1 score|
+  |---|---|
+  |rouge-1|0.521|
+  |rouge-2|0.355|
+  |rouge-l|0.429|
+
+3. KoBART R-Drop, `--dropout 0.2 --kl_alpha 0.1`을 활용하여 훈련했을 때
+
+  ||rouge-1|rouge-2|rouge-l|
+  |---|---|---|---|
+  |뉴스(DACON) 데이터|0.522|0.356|0.430|
+  |뉴스(AIHub) 데이터|-|-|-|
+  |사설잡지 데이터|0.441|0.246|0.349|
+  |도서 데이터|0.476|0.264|0.368|
+  |뉴스 + 도서 데이터|0.502|0.315|0.397|
+
+  단, 사설잡지 데이터와 도서 데이터, 뉴스+도서 데이터로 훈련한 모델은 test set을 각각 따로 마련하여 rouge 스코어를 측정했습니다.
 
 ## Demo
 - 학습한 model binary 추출 작업이 필요함
@@ -91,11 +115,6 @@ python train.py  --gradient_clip_val 1.0 --max_epochs 50 --default_root_dir logs
 ```
 streamlit run infer.py
 ```
-
-- Demo Page 실행 결과
-  - [원문링크](https://www.mk.co.kr/news/society/view/2020/12/1289300/?utm_source=naver&utm_medium=newsstand)
-  
-<img src="imgs/demo.png" alt="drawing" style="width:600px;"/>
 
 ## Reference
 - [KoBART](https://github.com/SKT-AI/KoBART)

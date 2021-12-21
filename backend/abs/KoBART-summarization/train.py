@@ -1,16 +1,14 @@
 import argparse
 import logging
 import os
-import numpy as np
-import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 from datetime import datetime
 from pytorch_lightning import loggers as pl_loggers
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from dataset import KoBARTSummaryDataset
-from transformers import BartForConditionalGeneration, PreTrainedTokenizerFast
+from transformers import BartForConditionalGeneration
 from transformers.optimization import AdamW, get_cosine_schedule_with_warmup
 from kobart import get_pytorch_kobart_model, get_kobart_tokenizer
 
