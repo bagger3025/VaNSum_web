@@ -1,28 +1,34 @@
-# 1. /api/original_text
+# 전처리 관련 설명
 
-Input:
+## /api/original_text, /api/original_text_with_title, /api/mkreport
+
+### Input
 
 |키|타입|설명|
 |---|---|---|
 |url|문자열|네이버 뉴스 url주소|
 
-Output:
+- `/api/mkreport`의 경우 url은 MK증권의 분석 레포트 URL 주소
+
+### Output
 
 |키|타입|설명|
 |---|---|---|
 |text|문자열 배열|문장별로 나뉜 문자열 배열|
 
 - 네이버 뉴스 url을 받아 안에 있는 기사를 문장을 나누어 리스트로 반환합니다.
+- `original_text_with_title`의 경우 첫 문장은 제목이 됩니다.
+- `mkreport`의 경우 안에 있는 레포트를 문장을 나누어 리스트로 반환합니다.
 
-# 2. /api/split_sentences
+## /api/split_sentences
 
-Input:
+### Input
 
 |키|타입|설명|
 |---|---|---|
 |text|문자열|원문 문자열|
 
-Output:
+### Output
 
 |키|타입|설명|
 |---|---|---|
@@ -30,15 +36,15 @@ Output:
 
 - 원문 텍스트를 받아 문장을 나누어 리스트로 반환합니다.
 
-# 3. /api/naver_summary
+## /api/naver_summary
 
-Input:
+### Input
 
 |키|타입|설명|
 |---|---|---|
 |url|문자열|네이버 뉴스기사 url주소|
 
-Output:
+### Output
 
 |키|타입|설명|
 |---|---|---|
@@ -48,16 +54,45 @@ Output:
 
 - 없다면 "This article does not support Naver Summary Bot."라는 문자열로 반환합니다.
 
-# 4. /api/TextRank, /api/LexRank, /api/SummaRuNNer, /api/KoBertSum, /api/MatchSum
+## /api/aiHub, /api/aiHub_title, /api/cnnTest
+
+### Input
+|키|타입|설명|
+|---|---|---|
+|random|숫자|AIHUB데이터의 인덱스|
+|type|문자열|"ext" 또는 "abs"|
+
+### Output
+
+- type가 ext일 경우
+
+|키|타입|설명|
+|---|---|---|
+|article_original|문자열 배열|AIHUB 데이터의 article_original|
+|extractive|숫자 배열|AIHUB 데이터의 extractive|
+
+- type가 abs일 경우
+
+|키|타입|설명|
+|---|---|---|
+|article_original|문자열 배열|AIHUB 데이터의 article_original|
+|abstractive|문자열|AIHUB 데이터의 abstractive|
+
+- AIHUB 데이터의 인덱스를 받아 article_original과 extractive, abstractive를 반환합니다.
+- `/api/cnnTest`의 경우 `cnn_dailymail_test` 데이터의 인덱스를 받아 article_original과 extractive, abstractive를 반환합니다.
+
+# Extractive 모델 관련 설명
+
+## /api/TextRank, /api/LexRank, /api/SummaRuNNer, /api/KoBertSum, /api/MatchSum
     
-Input:
+### Input
 |키|타입|설명|
 |---|---|---|
 |text|문자열 배열|문장별로 나눈 원문|
 |topk|숫자|추출할 문장 개수|
 |sort|문자열|확률순 정렬: prob   문장순 정렬: sent|
 
-Output:
+### Output
 |키|타입|설명|
 |---|---|---|
 |summary|숫자 배열|뽑힌 문장의 인덱스 배열|
@@ -122,17 +157,20 @@ Output:
 }
 ```
 
-# 5. /api/aiHub
+# Abstractive 모델 관련 설명
 
-Input:
+## /api/kobart, /api/kobart_rdrop, /api/kobart_rdrop_magazine, /api/kobart_rdrop_book, /api/KobertSumExtAbs, /api/pegasus_lage, /api/pegasus_large_skku, /api/pegasus_base_skku
+
+### Input
 |키|타입|설명|
 |---|---|---|
-|random|숫자|AIHUB데이터의 인덱스|
+|text|문자열 배열|문장별로 나눈 원문|
 
-Output:
+### Output
 |키|타입|설명|
 |---|---|---|
-|article_original|문자열 배열|AIHUB 데이터의 article_original|
-|extractive|숫자 배열|AIHUB 데이터의 extractive|
+|summary|숫자 배열|뽑힌 문장의 인덱스 배열|
+|score|숫자|summary에 대응되는 확률/점수|
+|time|숫자|요약하는 데 걸린 시간|
 
-- AIHUB 데이터의 인덱스를 받아 article_original과 extractive를 반환합니다.
+- 각각의 모델에 대해 원문 문자열 배열과 몇 개의 문장을 추출할지(topk)와 정렬 방법(prob: 확률순, sent: 문장 등장 순)을 입력으로 받습니다. 

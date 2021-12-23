@@ -38,7 +38,10 @@ def summarize(tokenizer, model, text, index, model_text=""):
  
     tot_time = time.time() - startTIME
     
-    if(index==-1): score = "NULL"
+    if(index==-1): 
+        rouge1 = "NULL"
+        rouge2 = "NULL"
+        rougeL = "NULL"
     else:
         ind = "-----:" + str(index) + "\n"
         next = "-----:" + str(index+1) + "\n"
@@ -56,16 +59,22 @@ def summarize(tokenizer, model, text, index, model_text=""):
             if(line==ind):
                 tmp=1
         
-        scorer = rouge_scorer.RougeScorer(['rouge1'], use_stemmer=True)
-        score = scorer.score(answer,output)['rouge1'].fmeasure
-        score = round(score, 3)
+        scorer = rouge_scorer.RougeScorer(['rouge1','rouge2','rougeL'], use_stemmer=True)
+        rouge1 = scorer.score(answer,output)['rouge1'].fmeasure
+        rouge1 = round(rouge1, 3)
+        rouge2 = scorer.score(answer,output)['rouge2'].fmeasure
+        rouge2 = round(rouge2, 3)
+        rougeL = scorer.score(answer,output)['rougeL'].fmeasure
+        rougeL = round(rougeL, 3)
 
 
     return json.dumps({
             "origin": text,
             "summary": output,
             "time": tot_time,
-            "score": score
+            "rouge1": rouge1,
+            "rouge2": rouge2,
+            "rougeL": rougeL,
         }, ensure_ascii=False)
 
 @app.route('/api/pegasus_large', methods=['POST', 'OPTIONS'])

@@ -171,6 +171,10 @@ python api_react.py
 
 [seujung/KoBART-summarization](https://github.com/seujung/KoBART-summarization)을 바탕으로 수정하였습니다.
 
+conda 가상환경을 새로 만들어 `abs/KoBART-summarization` 폴더에 들어가 `pip install -r requirements.txt` 명령어로 설치합니다.
+
+이후 api를 실행하기 위해서는 `python kobart_api.py` 명령어를 사용합니다.
+
 실행 방법 등의 내용은 원래 github의 내용과 동일하므로 참고하시기 바랍니다.
 
 KoBART R-Drop을 구현하면서 달라진 내용은 `abs/KoBART-summarization` 안의 `README.md`를 참고하시기 바랍니다.
@@ -180,6 +184,10 @@ KoBART R-Drop을 구현하면서 달라진 내용은 `abs/KoBART-summarization` 
 [uoneway/KoBertSum](https://github.com/uoneway/KoBertSum)과 [nlpyang/PreSumm](https://github.com/nlpyang/PreSumm)을 바탕으로 수정하였습니다.
 
 실행 방법은 [nlpyang/PreSumm](https://github.com/nlpyang/PreSumm)을 참고하시기 바랍니다.
+
+conda 가상환경을 새로 만들어 `abs/KoBertSumAbs` 폴더에 들어가 `pip install -r requirements.txt` 명령어로 설치합니다.
+
+이후 api를 실행하기 위해서는 `python ExtAbs_Summarizer.py` 명령어를 사용합니다.
 
 ## KoGPT2
 
@@ -192,6 +200,10 @@ KoBART R-Drop을 구현하면서 달라진 내용은 `abs/KoBART-summarization` 
 [google-research/pegasus](https://github.com/google-research/pegasus)를 바탕으로 수정하였습니다.
 
 실행 방법 등의 내용은 원래 github README.md의 내용과 동일합니다.
+
+conda 가상환경을 새로 만들어 `abs/PEGASUS` 폴더에 들어가 `pip install -r requirements.txt` 명령어로 설치합니다.
+
+이후 api를 실행하기 위해서는 `python pegasus_api.py` 명령어를 사용합니다.
 
 # API
 
