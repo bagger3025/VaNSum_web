@@ -34,16 +34,17 @@ from others.rouge_metric import Rouge
 
 nyt_remove_words = ["photo", "graph", "chart", "map", "table", "drawing"]
 
+# /mKoBertSum
+PROJECT_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..")
+
 
 def recover_from_corenlp(s):
-    # print("recover_from_corenlp")
     s = re.sub(r' \'{\w}', '\'\g<1>', s)
     s = re.sub(r'\'\' {\w}', '\'\'\g<1>', s)
 
 
 
 def load_json(p, lower):
-    # print("load_json")
     source = []
     tgt = []
     flag = False
@@ -67,7 +68,6 @@ def load_json(p, lower):
 
 
 def load_xml(p):
-    # print("load_xml")
     tree = ET.parse(p)
     root = tree.getroot()
     title, byline, abs, paras = [], [], [], []
@@ -121,7 +121,6 @@ def load_xml(p):
 
 
 def tokenize(args):
-    # print("tokenize")
     stories_dir = os.path.abspath(args.raw_path)
     tokenized_stories_dir = os.path.abspath(args.save_path)
 
@@ -152,7 +151,6 @@ def tokenize(args):
     print("Successfully finished tokenizing %s to %s.\n" % (stories_dir, tokenized_stories_dir))
 
 def cal_rouge(evaluated_ngrams, reference_ngrams):
-    # print("cal_rouge")
     reference_count = len(reference_ngrams)
     evaluated_count = len(evaluated_ngrams)
 
@@ -175,7 +173,6 @@ def cal_rouge(evaluated_ngrams, reference_ngrams):
 # 1개만 선택했을 때 가장 높은거 고르고, 그 1개와 다른 1개 조합했을 때 가장 높은거 고르고... 차례대로
 # 만약 1개만 선택한것보다 다른 1개 더 선택하는 조합의 루지 점수가 떨어지면 그냥 1개만 나올 수 도 있음
 def greedy_selection(doc_sent_list, abstract_sent_list, summary_size):
-    # print("greedy_selection")
     def _rouge_clean(s):
         return re.sub(r'[^a-zA-Z0-9가-힣 ]', '', s)
 
@@ -215,7 +212,6 @@ def greedy_selection(doc_sent_list, abstract_sent_list, summary_size):
 
 # 전체 경우의 수 탐색
 def full_selection(doc_sent_list, abstract_sent_list, summary_size=3):
-    # print("full_selection")
     def _rouge_clean(s):
         return re.sub(r'[^A-Za-z0-9가-힣 ]', '', s)
 
@@ -240,7 +236,6 @@ def full_selection(doc_sent_list, abstract_sent_list, summary_size=3):
 
     # 일단 greedy로 구한 다음 3개가 안되는 경우만 나머지를 full로 채움!
     selected_idx3_list = greedy_selection(doc_sent_list, abstract_sent_list, summary_size)
-    # print('1 ', selected_idx3_list)
     # if len(selected_idx3_list) == 3:
     #     return selected_idx3_list
 
@@ -258,22 +253,16 @@ def full_selection(doc_sent_list, abstract_sent_list, summary_size=3):
                 temp_idx3_list = selected_idx3_list + [sent_idx]
                 sents_array = np.array(doc_sent_list_merged)[temp_idx3_list]
                 sents_merged = ' '.join(sents_array)
-                #print('temp_idx3_list', temp_idx3_list)
                 # ROUGE1,2,l 합score 계산
                 rouge_scores = rouge_evaluator.get_scores(sents_merged, abstract)
                 total_rouge_score = 0
                 for k, v in rouge_scores.items():
                     total_rouge_score += v['f']
-                # print('total_rouge_score', total_rouge_score)
                 if total_rouge_score > cur_max_total_rouge_score:
                     cur_max_total_rouge_score = total_rouge_score
                     cur_sent_idx = sent_idx
-                  #  print(cur_max_total_rouge_score)
-                   # print(selected_idx3_list)
             selected_idx3_list.append(cur_sent_idx)
-            # print('-----------------------')
             total_max_rouge_score = cur_max_total_rouge_score
-    # print('2 ', selected_idx3_list)      
             
     # full
     sents_idx_perm_list = list(permutations(range(src_len), summary_size)) 
@@ -285,9 +274,6 @@ def full_selection(doc_sent_list, abstract_sent_list, summary_size=3):
     for sents_idx in sents_idx_list:
         sents_array = np.array(doc_sent_list_merged)[list(sents_idx)]
         sents_merged = ' '.join(sents_array)
-        #print(sents_merged)
-        # print(sents_idx)
-        # print(sents_array)
 
         # ROUGE1,2,l 합score 계산
         rouge_scores = rouge_evaluator.get_scores(sents_merged, abstract)
@@ -298,11 +284,9 @@ def full_selection(doc_sent_list, abstract_sent_list, summary_size=3):
         if total_rouge_score > total_max_rouge_score:
             total_max_rouge_score = total_rouge_score
             selected_idx3_list = list(sents_idx)
-    # print('3 ', selected_idx3_list)  
     return selected_idx3_list #, total_max_rouge_score,  sorted(selected_idx3_list)
 
 def hashhex(s):
-    # print("hashhex")
     """Returns a heximal formated SHA1 hash of the input string."""
     h = hashlib.sha1()
     h.update(s.encode('utf-8'))
@@ -314,16 +298,6 @@ class BertData():
 
     def __init__(self, args):
         self.args = args
-        # self.tokenizer = KoBertTokenizer.from_pretrained("monologg/kobert", do_lower_case=True)
-        # self.sep_token = '[SEP]'
-        # self.cls_token = '[CLS]'
-        # self.pad_token = '[PAD]'
-        # self.tgt_bos = '¶' # '[unused0]'   204; 314[ 315]
-        # self.tgt_eos = '----------------' # '[unused1]'
-        # self.tgt_sent_split = ';' #'[unused2]'
-        # self.sep_vid = self.tokenizer.token2idx[self.sep_token]
-        # self.cls_vid = self.tokenizer.token2idx[self.cls_token]
-        # self.pad_vid = self.tokenizer.token2idx[self.pad_token]
         self.tokenizer = BertTokenizer.from_pretrained("kykim/bert-kor-base", do_lower_case=True)
         self.sep_token = '[SEP]'
         self.cls_token = '[CLS]'
@@ -336,31 +310,17 @@ class BertData():
         self.pad_vid = 0
 
     def preprocess(self, src, tgt, sent_labels, use_bert_basic_tokenizer=False, is_test=False):
-        # print("preprocess")
         if ((not is_test) and len(src) == 0):
             return None
 
         original_src_txt = [' '.join(s) for s in src]
-        # print("preprocesssssssssssssssss")
-        # print(self.args.min_src_ntokens_per_sent)
-        # print(self.args.max_src_ntokens_per_sent)
-        # if self.args.min_src_ntokens_per_sent:
-        #     self.args.min_src_ntokens_per_sent = 1
-        # if self.args.max_src_ntokens_per_sent:
-        #     self.args.max_src_ntokens_per_sent = 300   
-        min_src_ntokens_per_sent = 1
-        max_src_ntokens_per_sent = 300
         idxs = [i for i, s in enumerate(src) if (len(s) > self.args.min_src_ntokens_per_sent)]
 
         _sent_labels = [0] * len(src)
         for l in sent_labels:
             _sent_labels[l] = 1
-        # print(sent_labels)
-        # print(_sent_labels)
         src = [src[i][:self.args.max_src_ntokens_per_sent] for i in idxs]
         sent_labels = [_sent_labels[i] for i in idxs]
-        # print(idxs)
-        # print(sent_labels)
         src = src[:self.args.max_src_nsents]
         sent_labels = sent_labels[:self.args.max_src_nsents]
 
@@ -401,19 +361,13 @@ class BertData():
         if ((not is_test) and len(tgt_subtoken) < self.args.min_tgt_ntokens):
             return None
         tgt_subtoken_idxs = self.tokenizer.convert_tokens_to_ids(tgt_subtoken)
-        # print(tgt_subtoken)
-        # print(tgt_subtoken_idxs)
         tgt_txt = '<q>'.join([' '.join(tt) for tt in tgt])
         src_txt = [original_src_txt[i] for i in idxs]
 
-        # BertData.used_subtoken_idxs.update(src_subtoken_idxs)
-        # BertData.used_subtoken_idxs.update(tgt_subtoken_idxs)
-        # print(sent_labels)
         return src_subtoken_idxs, sent_labels, tgt_subtoken_idxs, segments_ids, cls_ids, src_txt, tgt_txt
 
 
 def format_to_bert(args):
-    print("format_to_bert")
     if (args.dataset != ''):
         datasets = [args.dataset]
     else:
@@ -423,7 +377,6 @@ def format_to_bert(args):
         for json_f in glob.glob(pjoin(args.raw_path, '*' + corpus_type + '.*.json')):
             real_name = json_f.split('/')[-1]
             a_lst.append((corpus_type, json_f, args, pjoin(args.save_path, real_name.replace('json', 'bert.pt'))))
-        print(a_lst)
         pool = Pool(args.n_cpus)
         for d in pool.imap(_format_to_bert, a_lst):
             pass
@@ -433,9 +386,7 @@ def format_to_bert(args):
 
 
 def _format_to_bert(params):
-    # print("_format_to_bert")
     corpus_type, json_file, args, save_file = params
-    # print(params)
     is_test = corpus_type == 'test'
     if (os.path.exists(save_file)):
         logger.info('Ignore %s' % save_file)
@@ -448,10 +399,8 @@ def _format_to_bert(params):
     datasets = []
     for d in jobs:
         source, tgt = d['src'], d['tgt']
-        #print(source)
         sent_labels = full_selection(source[:args.max_src_nsents], tgt, 3)
         # sent_labels = greedy_selection(source[:args.max_src_nsents], tgt, 3)
-        # print(sent_labels)
         if (args.lower):
             source = [' '.join(s).lower().split() for s in source]
             tgt = [' '.join(s).lower().split() for s in tgt]
@@ -464,7 +413,6 @@ def _format_to_bert(params):
         b_data_dict = {"src": src_subtoken_idxs, "tgt": tgt_subtoken_idxs,
                        "src_sent_labels": sent_labels, "segs": segments_ids, 'clss': cls_ids,
                        'src_txt': src_txt, "tgt_txt": tgt_txt}   ##  (원복)원래 키값이 src_txt, tgt_txt 이었는데 수정!!!!!
-        # print(b_data_dict)
         datasets.append(b_data_dict)
     logger.info('Processed instances %d' % len(datasets))
 
@@ -503,10 +451,10 @@ def json_to_bert(jobs, bertData):
 
 def dataPrepro(bertData, with_title=False):
     if with_title:
-        with open('/home/skkuedu/VANSum/backend/mKoBertSum/ext/data/raw/extractive_test_v2.jsonl', 'r') as json_file:
+        with open(f'{PROJECT_DIR}/ext/data/raw/extractive_test_v2_with_title.jsonl', 'r') as json_file:
             test_json_list = list(json_file)
     else:
-        with open('/home/skkuedu/VANSum/backend/mKoBertSum/ext/data/raw/extractive_test_v2_with_title.jsonl', 'r') as json_file:
+        with open(f'{PROJECT_DIR}/ext/data/raw/extractive_test_v2.jsonl', 'r') as json_file:
             test_json_list = list(json_file)
     tests = []
     for json_str in test_json_list:
@@ -514,8 +462,6 @@ def dataPrepro(bertData, with_title=False):
         tests.append(line)
     print("KOBERTSUM tests", tests)
     test_df = pd.DataFrame(tests)
-    # "================================"
-    print("test_df", test_df)
     json_list = []
     original_sents_list = [make_data.preprocessing(original_sent).split()
                             for original_sent in test_df.iloc[0]["article_original"]]
@@ -524,11 +470,9 @@ def dataPrepro(bertData, with_title=False):
                     'tgt': summary_sents_list
             })
     bert = json_to_bert(json_list, bertData)
-    # print(bert)
     return bert
 
 def format_to_lines(args):
-    # print("format_to_lines")
     corpus_mapping = {}
     for corpus_type in ['valid', 'test', 'train']:
         temp = []
@@ -575,17 +519,11 @@ def format_to_lines(args):
 
 
 def _format_to_lines(params):
-    # print("_format_to_lines")
     f, args = params
-    print(f)
     source, tgt = load_json(f, args.lower)
     return {'src': source, 'tgt': tgt}
 
-
-
-
 def format_xsum_to_lines(args):
-    # print("format_xsum_to_lines")
     if (args.dataset != ''):
         datasets = [args.dataset]
     else:
@@ -626,12 +564,10 @@ def format_xsum_to_lines(args):
 
 
 def _format_xsum_to_lines(params):
-    # print("_format_xsum_to_lines")
     src_path, root_tgt, name = params
     f_src = pjoin(src_path, name + '.restbody')
     f_tgt = pjoin(root_tgt, name + '.fs')
     if (os.path.exists(f_src) and os.path.exists(f_tgt)):
-        print(name)
         source = []
         for sent in open(f_src):
             source.append(sent.split())
@@ -640,6 +576,3 @@ def _format_xsum_to_lines(params):
             tgt.append(sent.split())
         return {'src': source, 'tgt': tgt}
     return None
-
-# if __name__ == "__main__":
-#     print("??")

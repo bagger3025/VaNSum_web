@@ -81,36 +81,6 @@ def kobart_summarize():
     
     return response
 
-    #     # if type(text) != list:
-    #     #     logging.info("Error returned -- Text is not list")
-    #     #     response.set_data(json.dumps({"summary": "ERROR! Text is not list"}, ensure_ascii=False))
-    #     #     return response
-    #     # logging.info("kobart text: {}".format(str(text)))
-    #     # text = " ".join(text)
-    #     # if len(text.strip()) == 0:
-    #     #     logging.info("Error returned -- Text is empty")
-    #     #     response.set_data(json.dumps({"summary": "ERROR! Text is empty"}, ensure_ascii=False))
-    #     #     return response
-    #     # text = text.replace("\n", " ")
-    #     # start = time.time()
-    #     # input_ids = tokenizer_kobart.encode(text)[:1024]
-    #     # input_ids = torch.tensor(input_ids)
-    #     # input_ids = input_ids.unsqueeze(0)
-    #     # output = kobart_summarizer.generate(input_ids, eos_token_id=1, max_length=512, num_beams=5, no_repeat_ngram_size=5, output_scores=True, return_dict_in_generate=True)
-    #     # score = output.sequences_scores.tolist()[0]
-    #     # output = tokenizer_kobart.decode(output.sequences[0], skip_special_tokens=True)
-    #     # end = time.time()
-
-    #     # result = {
-    #     #     "summary": output,
-    #     #     "score": score,
-    #     #     "time": end - start
-    #     # }
-    #     # logging.info("kobart output: {}".format(output))
-    #     # logging.info("kobart time: {}".format(end - start))
-    #     response.set_data(json.dumps(result, ensure_ascii=False))
-    # return response
-
 @app.route('/api/kobart_rdrop', methods=['POST', 'OPTIONS'])
 def kobart_rdrop_summarize():
 
@@ -123,41 +93,28 @@ def kobart_rdrop_summarize():
     elif request.method == 'POST':
         response.headers.add("Access-Control-Allow-Origin", "*")
         data = request.get_json()
-        # print(data)
         text = data["text"]
         response_data = summarize(tok_rdrop, model_rdrop, text, "kobart rdrop")
         response.set_data(response_data)
+    
+    return response
 
-        # logging.info("kobart rdrop text: {}".format(str(text)))
-        # if type(text) != list:
-        #     logging.info("Error returned -- Text is not list")
-        #     response.set_data(json.dumps({"summary": "ERROR! Text is not list"}, ensure_ascii=False))
-        #     return response
-        # text = " ".join(text)
-        # text = text.replace("\n", " ")
-        # if len(text.strip()) == 0:
-        #     logging.info("Error returned -- Text is empty")
-        #     response.set_data(json.dumps({"summary": "ERROR! Text is empty"}, ensure_ascii=False))
-        #     return response
-        # start = time.time()
-        # input_ids = tokenizer_kobart_rdrop.encode(text)[:1024]
-        # input_ids = torch.tensor(input_ids)
-        # input_ids = input_ids.unsqueeze(0)
-        # output = rdrop_summarizer.generate(input_ids, eos_token_id=1, max_length=512, num_beams=5, no_repeat_ngram_size=5, output_scores=True, return_dict_in_generate=True)
-        # score = output.sequences_scores.tolist()[0]
-        # output = tokenizer_kobart_rdrop.decode(output.sequences[0], skip_special_tokens=True)
-        # end = time.time()
+@app.route('/api/kobart_rdrop_aihubnews', methods=['POST', 'OPTIONS'])
+def kobart_rdrop_aihubnews_summarize():
 
-        # output2 = rdrop_magazine_summarizer.generate(input_ids, eos_token_id=1, max_length=512, num_beams=5, no_repeat_ngram_size=5, output_scores=True, return_dict_in_generate=True)
-        # output2 = tokenizer_kobart_rdrop.decode(output2.sequences[0], skip_special_tokens=True)
+    response = Response()
 
-        # result = {
-        #     "summary": output + "\n\n\n" + output2,
-        #     "score": score,
-        #     "time": end - start
-        # }
-        # logging.info("kobart rdrop output: {}".format(result))
-        # response.set_data(json.dumps(result, ensure_ascii=False))
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        text = data["text"]
+        response_data = summarize(tok_rdrop_aihubnews, model_rdrop_aihubnews, text, "kobart rdrop aihubnews")
+        response.set_data(response_data)
+    
     return response
 
 @app.route('/api/kobart_rdrop_magazine', methods=['POST', 'OPTIONS'])
@@ -192,39 +149,7 @@ def kobart_rdrop_book_summarize():
         text = data["text"]
         response_data = summarize(tok_rdrop_book, model_rdrop_book, text, "kobart rdrop book")
         response.set_data(response_data)
-        # logging.info("kobart rdrop book text: {}".format(str(text)))
-        # if type(text) != list:
-        #     logging.info("Error returned -- Text is not list")
-        #     response.set_data(json.dumps({"summary": "ERROR! Text is not list"}, ensure_ascii=False))
-        #     return response
-        # text = " ".join(text)
-        # text = text.replace("\n", " ")
-        # text = re.sub(r" +", " ", text)
-        # text = text.strip()
-        # if len(text) == 0:
-        #     logging.info("Error returned -- Text is empty")
-        #     response.set_data(json.dumps({"summary": "ERROR! Text is empty"}, ensure_ascii=False))
-        #     return response
-        # start = time.time()
-        # input_ids = tokenizer_kobart_rdrop.encode(text)
-        # logging.info("kobart rdrop book tensor size: {}".format(len(input_ids)))
-        # input_ids = input_ids[:1024]
-        # input_ids = torch.tensor(input_ids)
-        # input_ids = input_ids.unsqueeze(0)
-        # output = rdrop_book_summarizer.generate(input_ids, decoder_start_token_id=tokenizer_kobart_rdrop_book.eos_token_id,
-        #                                         eos_token_id=tokenizer_kobart_rdrop_book.eos_token_id, max_length=512, 
-        #                                         num_beams=5, no_repeat_ngram_size=5, output_scores=True, return_dict_in_generate=True)
-        # score = output.sequences_scores.tolist()[0]
-        # output = tokenizer_kobart_rdrop.decode(output.sequences[0], skip_special_tokens=True)
-        # end = time.time()
-
-        # result = {
-        #     "summary": output,
-        #     "score": score,
-        #     "time": end - start
-        # }
-        # logging.info("kobart rdrop book output: {}".format(result))
-        # response.set_data(json.dumps(result, ensure_ascii=False))
+    
     return response
 
 @app.route('/api/test', methods=['GET', 'POST', 'OPTIONS'])
@@ -236,14 +161,14 @@ def test_api():
 
     return result
 
+def get_tok_model(path):
+    return get_kobart_tokenizer(), BartForConditionalGeneration.from_pretrained(path)
+
 if __name__ == '__main__':
-    model_kobart = BartForConditionalGeneration.from_pretrained("./kobart_model")
-    model_rdrop = BartForConditionalGeneration.from_pretrained("./kobart_rdrop_model_drop20")
-    model_rdrop_magazine = BartForConditionalGeneration.from_pretrained("./kobart_rdrop_summary1110")
-    model_rdrop_book = BartForConditionalGeneration.from_pretrained("./kobart_rdrop_summary1817")
-    tok_kobart = get_kobart_tokenizer()
-    tok_rdrop = get_kobart_tokenizer()
-    tok_rdrop_magazine = get_kobart_tokenizer()
-    tok_rdrop_book = get_kobart_tokenizer()
-    # app.run(debug=True, port=9886)
+    tok_kobart, model_kobart = get_tok_model("./kobart_model")
+    tok_rdrop, model_rdrop = get_tok_model("./kobart_rdrop_model_drop20")
+    tok_rdrop_magazine, model_rdrop_magazine = get_tok_model("./kobart_rdrop_summary1110")
+    tok_rdrop_book, model_rdrop_book = get_tok_model("./kobart_rdrop_summary1817")
+    tok_rdrop_aihubnews, model_rdrop_aihubnews = get_tok_model("./kobart_rdrop_summary2222")
+
     app.run(host="112.175.32.78", port=9500)

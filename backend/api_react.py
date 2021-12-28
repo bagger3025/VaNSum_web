@@ -319,8 +319,8 @@ def summarunner_summarize_with_title():
         response.set_data(json.dumps(result, ensure_ascii=False))
     return response
 
-##### ABS models #####
-@app.route('/api/kobart', methods=['GET', 'POST', 'OPTIONS'])
+##### ABSTRACTIVE models #####
+@app.route('/api/kobart', methods=['POST', 'OPTIONS'])
 def kobart_summarize():
 
     response = Response()
@@ -338,7 +338,7 @@ def kobart_summarize():
         response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
-@app.route('/api/kobart_rdrop', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/kobart_rdrop', methods=['POST', 'OPTIONS'])
 def kobart_rdrop_summarize():
 
     response = Response()
@@ -356,7 +356,25 @@ def kobart_rdrop_summarize():
         response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
-@app.route('/api/kobart_rdrop_magazine', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/kobart_rdrop_aihubnews', methods=['POST', 'OPTIONS'])
+def kobart_rdrop_aihubnews_summarize():
+
+    response = Response()
+
+    if request.method == 'OPTIONS':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "POST")
+    elif request.method == 'POST':
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        data = request.get_json()
+        data = requests.post("http://112.175.32.78:9500/api/kobart_rdrop_aihubnews", json=data)
+        data = data.json()
+
+        response.set_data(json.dumps(data, ensure_ascii=False))
+    return response
+
+@app.route('/api/kobart_rdrop_magazine', methods=['POST', 'OPTIONS'])
 def kobart_rdrop_magazine_summarize():
 
     response = Response()
@@ -374,7 +392,7 @@ def kobart_rdrop_magazine_summarize():
         response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
-@app.route('/api/kobart_rdrop_book', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/kobart_rdrop_book', methods=['POST', 'OPTIONS'])
 def kobart_rdrop_book_summarize():
 
     response = Response()
@@ -408,7 +426,7 @@ def kobertsumextabs_summarize():
         response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
-@app.route('/api/pegasus_large', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/pegasus_large', methods=['POST', 'OPTIONS'])
 def pegasus_large_summarize():
 
     response = Response()
@@ -426,7 +444,7 @@ def pegasus_large_summarize():
         response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
-@app.route('/api/pegasus_large_skku', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/pegasus_large_skku', methods=['POST', 'OPTIONS'])
 def pegasus_large_skku_summarize():
 
     response = Response()
@@ -444,7 +462,7 @@ def pegasus_large_skku_summarize():
         response.set_data(json.dumps(data, ensure_ascii=False))
     return response
 
-@app.route('/api/pegasus_base_skku', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/api/pegasus_base_skku', methods=['POST', 'OPTIONS'])
 def pegasus_base_skku_summarize():
 
     response = Response()
@@ -481,8 +499,6 @@ def get_originaltext():
             s = split_sentences(a, safe=True)
             sentences.extend(s)
 
-        #for i in range(len(sentences)):
-        #    sentences[i]=' '.join(sentences[i].split())
         result = {
             "text": sentences,
         }
@@ -643,7 +659,6 @@ def aiHub():
                 "abstractive" : j["abstractive"]
             }
 
-
         response.set_data(json.dumps(result, ensure_ascii=False))
     return response
 
@@ -658,12 +673,9 @@ def aiHub_title():
         response.headers.add("Access-Control-Allow-Origin", "*")
         data = request.get_json()
         idx = data["random"]
-        # Temporary checking string
-        if type(idx) == str:
-            print("idx type is string!!")
         j=aihub_with_title[idx]
         
-        if(data["type"]=="ext"):
+        if (data["type"]=="ext"):
             result={
                 "article_original" : j["article_original"],
                 "extractive" : j["extractive"]
@@ -697,7 +709,6 @@ def cnnTest():
         tmp=0
         for line in cnn_dailymail_inputs:
             if line==next:
-                tmp=0
                 break
             if tmp==1:
                 input+=line
@@ -707,7 +718,6 @@ def cnnTest():
         tmp=0
         for line in cnn_dailymail_targets:
             if line==next:
-                tmp=0
                 break
             if tmp==1:
                 answer+=line
