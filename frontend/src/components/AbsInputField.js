@@ -3,11 +3,12 @@ import TextareaAutosize from '@material-ui/core/TextareaAutosize';
 
 function AbsInputField (){
     const URL_TO_API = "http://112.175.32.78:443";
-    const apiURL = ['/api/kobart','/api/kobart_rdrop','/api/kobart_rdrop_magazine', '/api/kobart_rdrop_book', '/api/KobertSumExtAbs']
+    const apiURL = ['/api/kobart','/api/kobart_rdrop','/api/kobart_rdrop_magazine', '/api/kobart_rdrop_book', '/api/KobertSumExtAbs','/api/kobart_rdrop_aihubnews']
 
     const [extabschk, setExtabschk] = useState(false);
     const [bart, setBart] = useState(false); //bart 체크박스 체크가 되었는지
     const [rdrop, setRdrop] = useState(true); // bart r-drop 체크박스 체크가 되었는지
+    const [aihubRdropchk, setAihubRdropchk] = useState(true);
     const [aiHub, setAiHub] = useState(false); // aihub 체크박스 체크가 되었는지
     const [sumTxt, setSumTxt] = useState([]); // summary text
     const [oriTxt,setOriTxt] = useState([]); // original text
@@ -57,6 +58,7 @@ function AbsInputField (){
         setRdBVar([]);
         setRdMVar([]);
         setExtab([]);
+        setAihubRdrop([]);
     }
 
     const getTextSummary = (_oriTxt) =>{
@@ -67,6 +69,7 @@ function AbsInputField (){
         let rBVar=[];
         let rMVar=[];
         let extVar=[];
+        let aihubRdropVar=[];
         console.log('original txt', requestOpt)
         if(rdrop===true){
             fetch(URL_TO_API+apiURL[1], requestOpt).then(response => response.json()).then(jsons => {
@@ -116,6 +119,19 @@ function AbsInputField (){
                 else{extVar.push(jsons['score'])}
 
                 setExtab(extVar);
+            })
+        }
+        if(aihubRdropchk===true){
+            fetch(URL_TO_API+apiURL[5],requestOpt).then(response=>response.json()).then(jsons=>{
+                aihubRdropVar.push(jsons['summary'].replace('\n',''))
+                aihubRdropVar.push(jsons['time'].toFixed(2))
+                if(typeof jsons['score']==='number'){
+                    aihubRdropVar.push(jsons['score'].toFixed(4))
+                }
+                else{
+                    aihubRdropVar.push(jsons['score'])
+                }
+                setAihubRdrop(aihubRdropVar);
             })
         }
         
@@ -282,7 +298,6 @@ function AbsInputField (){
                             <label><h3>BART R-Drop(Book)</h3><span>{rdBVar[1]} seconds</span>
                             <br/>
                             <span>score : {rdBVar[2]}</span></label>
-                            {/* Temporary mapping */}
                             <p style={{border:"1px solid black"}}>{typeof(rdBVar[0]) === "string" ? rdBVar[0].split("\n").map(line=>{
                                 return <span>{line}<br></br></span>
                             }) : ""} </p>
@@ -328,7 +343,6 @@ function AbsInputField (){
                             <label><h3>BERTSumExtAbs</h3><span>{extabs[1]} seconds</span>
                             <br/>
                             <span>score : {extabs[2]}</span></label>
-                            {/* Temporary mapping */}
                             <p style={{border:"1px solid black"}}>{typeof(extabs[0]) === "string" ? extabs[0].split("\n").map(line=>{
                                 return <span>{line}<br></br></span>
                             }) : ""} </p>
@@ -339,12 +353,36 @@ function AbsInputField (){
         )
     }
 
+    const showAiRdrop=()=>{
+        return (
+            <div>
+                {
+                    aihubRdrop===false?
+                    (<span>
+
+                    </span>):(
+                        <div>
+                            <label><h3>BART R-Drop (AIHub News)</h3><span>{aihubRdrop[1]}</span>
+                            <br/>
+                            <span>score : {aihubRdrop[2]}</span></label>
+                            <p style={{border:"1px solid black"}}>{typeof(aihubRdrop[0])==="string" ? aihubRdrop[0].split('\n').map(line=>{
+                                return <span>{line}<br/></span>}):""}</p>
+                        </div>
+                    )
+                }
+            </div>
+
+        )
+    }
+
     
     const [rdropBook, setRdropBook] = useState(true);
     const [rdropMag, setRdropMag] = useState(true);
     const [rdMVar, setRdMVar] = useState([]);
     const [rdBVar, setRdBVar] = useState([]);
     const [extabs, setExtab] = useState([]);
+    const [aihubRdrop, setAihubRdrop] = useState([]);
+
     return (
         <>
         <div>
@@ -354,12 +392,15 @@ function AbsInputField (){
             &nbsp;&nbsp;
             <label> | <input type="checkbox" checked = {bart} onChange = {()=>setBart(!bart)}/> BART </label>
             &nbsp;&nbsp;
-            <label> | <input type = "checkbox" checked={rdrop} onChange = {()=>setRdrop(!rdrop)}/> BART R-Drop(news) </label>
+            <label> | <input type = "checkbox" checked={rdrop} onChange = {()=>setRdrop(!rdrop)}/> BART R-Drop(News) </label>
+            &nbsp;&nbsp;
+            <label> | <input type = "checkbox" checked={aihubRdropchk} onChange={()=>setAihubRdropchk(!aihubRdropchk)}/> BART R-Drop(AIHub news)</label>
             &nbsp;&nbsp;
             <label> | <input type = "checkbox" checked={rdropBook} onChange={()=>setRdropBook(!rdropBook)}/> BART R-Drop(book)</label>
             &nbsp;&nbsp;
             <label> | <input type = "checkbox" checked={rdropMag} onChange={()=>setRdropMag(!rdropMag)}/> BART R-Drop(magazine)</label>
-            <br></br><br></br><br/>
+
+            <br/><br/><br/><br/>
             <h5>- Input</h5>
             <TextareaAutosize  placeholder="Enter the naver news link or content of the news" style={style} cols="80" onKeyUp = {(e)=>{setCtt(e.target.value)}}/>
             &nbsp;&nbsp;&nbsp;
@@ -376,6 +417,7 @@ function AbsInputField (){
             {showExtAbs()}
             {showBart()}
             {showRdrop()}
+            {showAiRdrop()}
             {showRdropBook()}
             {showRdropMag()}
         </div>
