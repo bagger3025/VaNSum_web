@@ -362,7 +362,7 @@ function AbsInputField (){
 
                     </span>):(
                         <div>
-                            <label><h3>BART R-Drop (AIHub News)</h3><span>{aihubRdrop[1]}</span>
+                            <label><h3>BART R-Drop (AIHub News)</h3><span>{aihubRdrop[1]} seconds</span>
                             <br/>
                             <span>score : {aihubRdrop[2]}</span></label>
                             <p style={{border:"1px solid black"}}>{typeof(aihubRdrop[0])==="string" ? aihubRdrop[0].split('\n').map(line=>{
