@@ -159,7 +159,7 @@ Output:
 
 # Abstractive 모델 관련 설명
 
-## /api/kobart, /api/kobart_rdrop, /api/kobart_rdrop_magazine, /api/kobart_rdrop_book, /api/KobertSumExtAbs, /api/pegasus_lage, /api/pegasus_large_skku, /api/pegasus_base_skku
+## /api/kobart, /api/kobart_rdrop, /api/kobart_rdrop_aihubnews, /api/kobart_rdrop_magazine, /api/kobart_rdrop_book, /api/KobertSumExtAbs, /api/pegasus_lage, /api/pegasus_large_skku, /api/pegasus_base_skku
 
 ### Input
 |키|타입|설명|
@@ -169,8 +169,9 @@ Output:
 ### Output
 |키|타입|설명|
 |---|---|---|
-|summary|숫자 배열|뽑힌 문장의 인덱스 배열|
+|summary|문자열|생성 요약문|
 |score|숫자|summary에 대응되는 확률/점수|
 |time|숫자|요약하는 데 걸린 시간|
 
-- 각각의 모델에 대해 원문 문자열 배열과 몇 개의 문장을 추출할지(topk)와 정렬 방법(prob: 확률순, sent: 문장 등장 순)을 입력으로 받습니다. 
+- 각각의 모델에 대해 원문 문자열 배열을 입력으로 받습니다.
+- 생성요약문을 summary에 담아 score과 time과 함께 반환합니다. KoBERTSumExtAbs 모델의 경우 score은 NaN이라는 문자열을 반환합니다.
