@@ -167,6 +167,18 @@ python api_react.py
 
 모델이 다양해지고 요구되는 환경이 달라져서 conda 가상환경을 새롭게 만들어 각각 flask를 킨 후 `api_react.py`에서 알맞은 곳으로 요청하는 방식을 활용하였습니다.
 
+모델 다운로드는 다음 테이블에 정리되어있습니다.
+
+- 저장 위치의 명시된 위치는 해당 위치 아래에 압축 파일 안의 폴더들이 위치한다는 것을 의미합니다.
+    - 예를 들어 KoBART의 경우 올바른 경로는 `backend/abs/KoBART-summarization/kobart_model/`, `backend/abs/KoBART-summarization/kobart_rdrop_model_drop20/` 등이 됩니다.
+
+|모델 다운로드|저장 위치|
+|---|---|
+|[KoBART](https://drive.google.com/file/d/1c9UCwQOJF55WaoojJteispP1NWE1ndNT/view?usp=sharing)|`backend/abs/KoBART-summarization/`|
+|[KoBERTSumExtAbs](https://drive.google.com/file/d/1kTZAZvrqc9SP7IRc3IhaGjFYWOTSSVkM/view?usp=sharing)|`backend/abs/KoBertSumAbs/ext/models/`|
+|[KoGPT2](https://drive.google.com/file/d/1NfZsi1z78ResyIqmJ9Qb1cDfPiev1BkG/view?usp=sharing)|`backend/abs/KoGPT2-summarization/`|
+|[PEGASUS](https://drive.google.com/file/d/11qFDhjqc_tq0nTv6FHjFxRCytk66DobY/view?usp=sharing)| - `model-63000`: `backend/abs/PEGASUS/pegasus_base/` <br/> - `model-210000`: `backend/abs/PEGASUS/pegasus/` <br/> - `model-60000`: `backend/abs/PEGASUS/pegasus/`|
+
 ## KoBART
 
 [seujung/KoBART-summarization](https://github.com/seujung/KoBART-summarization)을 바탕으로 수정하였습니다.
