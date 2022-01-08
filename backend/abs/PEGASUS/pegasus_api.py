@@ -30,7 +30,8 @@ def summarize(tokenizer, model, text, index, model_text=""):
     startTIME = time.time()
 
     # Generate abstractive summarize
-    batch = tokenizer(text, truncation=True, padding='longest', return_tensors="pt")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    batch = tokenizer(text, truncation=True, padding='longest', return_tensors="pt").to(device)
     translated = model.generate(**batch)
     output= tokenizer.batch_decode(translated, skip_special_tokens=True)
     output= output[0]
@@ -46,7 +47,7 @@ def summarize(tokenizer, model, text, index, model_text=""):
         ind = "-----:" + str(index) + "\n"
         next = "-----:" + str(index+1) + "\n"
         answer=""
-        f2 = "../cnn_dailymail_test/targets-210000-.dev.txt"
+        f2 = "/home/vaiv2021/shbin/pegasus/ckpt/pegasus_ckpt/cnn_dailymail/targets-210000-.dev.txt"
         tmp=0
         f = open(f2, 'r')
         lines = f.readlines()
@@ -135,13 +136,13 @@ def pegasus_base_skku_summarize():
     return response
 
 if __name__ == '__main__':
-    model_pegasus_large = PegasusForConditionalGeneration.from_pretrained('./large/model-210000')
-    tok_pegasus_large = tokenizer = PegasusTokenizer.from_pretrained('./large/model-210000')
+    model_pegasus_large = PegasusForConditionalGeneration.from_pretrained('/home/vaiv2021/shbin/pegasus/model-210000').cuda()
+    tok_pegasus_large = tokenizer = PegasusTokenizer.from_pretrained('/home/vaiv2021/shbin/pegasus/model-210000')
 
-    model_pegasus_large_skku = PegasusForConditionalGeneration.from_pretrained('./large/model-47000')
-    tok_pegasus_large_skku = tokenizer = PegasusTokenizer.from_pretrained('./large/model-47000')
+    model_pegasus_large_skku = PegasusForConditionalGeneration.from_pretrained('/home/vaiv2021/shbin/pegasus/model-60000').cuda()
+    tok_pegasus_large_skku = tokenizer = PegasusTokenizer.from_pretrained('/home/vaiv2021/shbin/pegasus/model-60000')
 
-    model_pegasus_base_skku = PegasusForConditionalGeneration.from_pretrained('./base/model-12000')
-    tok_pegasus_base_skku = tokenizer = PegasusTokenizer.from_pretrained('./base/model-12000')
+    model_pegasus_base_skku = PegasusForConditionalGeneration.from_pretrained('/home/vaiv2021/shbin/pegasus_base/model-63000').cuda()
+    tok_pegasus_base_skku = tokenizer = PegasusTokenizer.from_pretrained('/home/vaiv2021/shbin/pegasus_base/model-63000')
     # app.run(debug=True, port=9886)
-    app.run(host="112.175.32.78", port=8800)
+    app.run(host="14.49.45.139", port=8080)
