@@ -1,36 +1,43 @@
 import torch
-from konlpy.tag import Mecab 
+from typing import List
+from konlpy.tag import Kkma
+
 
 class Vocab():
-    def __init__(self,embed,word2id):
+    def __init__(self, embed, word2id):
         self.embed = embed
         self.word2id = word2id
-        self.id2word = {v:k for k,v in word2id.items()}
+        self.id2word = {v: k for k, v in word2id.items()}
         assert len(self.word2id) == len(self.id2word)
         self.PAD_IDX = 0
         self.UNK_IDX = 1
         self.PAD_TOKEN = 'PAD_TOKEN'
         self.UNK_TOKEN = 'UNK_TOKEN'
-    
+
     def __len__(self):
         return len(self.word2id)
 
-    def i2w(self,idx):
+    def i2w(self, idx):
         return self.id2word[idx]
-    def w2i(self,w):
+
+    def w2i(self, w: str):
         if w in self.word2id:
             return self.word2id[w]
         else:
             return self.UNK_IDX
-    
-    def make_features(self,batch,sent_trunc=50,doc_trunc=100,split_token='\n'):
-        sents_list,targets,doc_lens = [],[],[]
+
+    def make_features(self,
+                      batch,
+                      sent_trunc=50,
+                      doc_trunc=100,
+                      split_token='\n'):
+        sents_list, targets, doc_lens = [], [], []
         # trunc document
-        for doc,label in zip(batch['doc'],batch['labels']):
+        for doc, label in zip(batch['doc'], batch['labels']):
             sents = doc.split(split_token)
             labels = label.split(split_token)
             labels = [int(l) for l in labels]
-            max_sent_num = min(doc_trunc,len(sents))
+            max_sent_num = min(doc_trunc, len(sents))
             sents = sents[:max_sent_num]
             labels = labels[:max_sent_num]
             sents_list += sents
@@ -43,42 +50,55 @@ class Vocab():
             words = sent.split()
             if len(words) > sent_trunc:
                 words = words[:sent_trunc]
-            max_sent_len = len(words) if len(words) > max_sent_len else max_sent_len
+            max_sent_len = len(words) if len(
+                words) > max_sent_len else max_sent_len
             batch_sents.append(words)
-        
+
         features = []
         for sent in batch_sents:
-            feature = [self.w2i(w) for w in sent] + [self.PAD_IDX for _ in range(max_sent_len-len(sent))]
+            feature = [self.w2i(w) for w in sent] + \
+                [self.PAD_IDX for _ in range(max_sent_len-len(sent))]
             features.append(feature)
-        
-        features = torch.LongTensor(features)    
+
+        features = torch.LongTensor(features)
         targets = torch.LongTensor(targets)
         summaries = batch['summaries']
 
-        return features,targets,summaries,doc_lens
+        return features, targets, summaries, doc_lens
 
-    def make_predict_features(self, batch, sent_trunc=150, doc_trunc=100, split_token='\n'):
-        mecab = Mecab()
-        sents_list, doc_lens = [],[]
+    def make_predict_features(self,
+                              batch: List[str],
+                              sent_trunc=150,
+                              doc_trunc=100,
+                              split_token='\n'):
+        """
+        Convert string to id
+        return features and doc_lens
+        """
+        kkma = Kkma()
+        sents_list: List[List[str]] = []
+        doc_lens: List[int] = []
         for doc in batch:
             sents = doc.split(split_token)
-            max_sent_num = min(doc_trunc,len(sents))
-            sents = sents[:max_sent_num]
+            if len(sents) > doc_trunc:
+                sents = sents[:doc_trunc]
             sents_list += sents
             doc_lens.append(len(sents))
         # trunc or pad sent
         max_sent_len = 0
-        batch_sents = []
+        batch_sents: List[List[str]] = []
         for sent in sents_list:
-            words = mecab.morphs(sent)
+            words: List[str] = kkma.morphs(sent)
             if len(words) > sent_trunc:
                 words = words[:sent_trunc]
-            max_sent_len = max(len(words), max_sent_len)
+            if len(words) > max_sent_len:
+                max_sent_len = len(words)
             batch_sents.append(words)
 
-        features = []
+        features: List[List[int]] = []
         for sent in batch_sents:
-            feature = [self.w2i(w) for w in sent] + [self.PAD_IDX for _ in range(max_sent_len-len(sent))]
+            feature = [self.w2i(w) for w in sent] + \
+                [self.PAD_IDX for _ in range(max_sent_len-len(sent))]
             features.append(feature)
 
         features = torch.LongTensor(features)
