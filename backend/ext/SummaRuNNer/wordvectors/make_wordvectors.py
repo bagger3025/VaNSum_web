@@ -3,11 +3,11 @@ import nltk
 import codecs
 import argparse
 import numpy as np
+import gensim
+from itertools import chain
 
 # arguments setting
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    '--lcode', help='ISO 639-1 code of target language. See `lcodes.txt`.')
 parser.add_argument('--vector_size', type=int, default=100,
                     help='the size of a word vector')
 parser.add_argument('--window_size', type=int, default=5,
@@ -18,7 +18,6 @@ parser.add_argument('--num_negative', type=int, default=5,
                     help='the int for negative specifies how many “noise words” should be drawn')
 args = parser.parse_args()
 
-lcode = args.lcode
 vector_size = args.vector_size
 window_size = args.window_size
 vocab_size = args.vocab_size
@@ -34,7 +33,6 @@ def get_min_count(sents):
       min_count: A uint. Should be set as the parameter value of word2vec `min_count`.   
     '''
     global vocab_size
-    from itertools import chain
 
     fdist = nltk.FreqDist(chain.from_iterable(sents))
     # the count of the the top-kth word
@@ -44,14 +42,13 @@ def get_min_count(sents):
 
 
 def make_wordvectors():
-    global lcode
     # In case you have difficulties installing gensim, you need to consider installing conda.
-    import gensim
+    
     # import cPickle as pickle
 
     print("Making sentences as list...")
     sents = []
-    with codecs.open('data/{}.txt'.format(lcode), 'r', 'utf-8') as fin:
+    with codecs.open(f'data/ko.txt', 'r', 'utf-8') as fin:
         while 1:
             line = fin.readline()
             if not line:
@@ -66,10 +63,10 @@ def make_wordvectors():
                                    negative=num_negative,
                                    window=window_size)
 
-    model.save('data/{}.bin'.format(lcode))
+    model.save(f'data/ko.bin')
 
     # Save to file
-    with codecs.open('data/{}.tsv'.format(lcode), 'w', 'utf-8') as fout:
+    with codecs.open(f'data/ko.tsv', 'w', 'utf-8') as fout:
         for i, word in enumerate(model.wv.index_to_key):
             fout.write(u"{}\t{}\t{}\n".format(str(i), word.encode('utf8').decode('utf8'),
                                               np.array_str(model.wv[word])

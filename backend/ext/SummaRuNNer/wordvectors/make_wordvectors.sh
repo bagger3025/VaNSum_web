@@ -13,19 +13,19 @@ xml_name="${lcode}wiki-${wiki_date}-pages-articles-multistream.xml"
 ############## END #####################
 
 echo "step 0. Make `data` directory and move there."
-mkdir data; cd data
+# mkdir data
+cd data
 
 echo "step 1. Download the stored wikipedia file to your disk."
-wget "https://dumps.wikimedia.org/${lcode}wiki/${wiki_date}/${xml_name}.bz2"
+# wget "https://dumps.wikimedia.org/${lcode}wiki/${wiki_date}/${xml_name}.bz2"
 
 echo "step 2. Extract the bz2 file."
-bzip2 -d "${xml_name}.bz2"
+# bzip2 -d "${xml_name}.bz2"
 
 cd ..
 echo "step 3. Build Corpus."
-python build_corpus.py --lcode=${lcode} --max_corpus_size=${max_corpus_size} --xml_name=${xml_name}
-rm data/${xml_name}
+python build_corpus.py --max_corpus_size=${max_corpus_size} --xml_name=${xml_name}
 
 echo "step 4. make wordvectors"
-python make_wordvectors.py --lcode=${lcode} --vector_size=${vector_size} --window_size=${window_size} --vocab_size=${vocab_size} --num_negative=${num_negative}
-rm data/ko.txt
+python make_wordvectors.py --vector_size=${vector_size} --window_size=${window_size} --vocab_size=${vocab_size} --num_negative=${num_negative}
+
